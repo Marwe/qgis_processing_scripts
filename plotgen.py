@@ -45,6 +45,8 @@ vspacing = parcel_length
 
 attnames_area=["DATE","TIME","VERSION","ID","NAME","AREA","PERIMETER","SWATHSIN","DIST1","DIST2","PREFWEIGHT"]
 attnames_line=["DATE","TIME","VERSION","ID","NAME","LENGTH","DIST1","DIST2","PREFWEIGHT"]
+attnames_all =["DATE","TIME","VERSION","ID","NAME","LENGTH","AREA","PERIMETER","SWATHSIN","DIST1","DIST2","PREFWEIGHT"]
+
 
 # Create the grid and line layer
 crs = iface.mapCanvas().mapSettings().destinationCrs().toWkt()
@@ -99,6 +101,8 @@ for colid in range(num_cols):
     lfeat.setAttributes(inAttr) # Set attributes for the current id
     inAttr = [colid]
     provl.addFeatures([lfeat])
+    # add to the common vector layer
+    prov.addFeatures([lfeat])
 
 
 # Update fields for the vector
