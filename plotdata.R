@@ -1,0 +1,10 @@
+dat<-read.csv("merged_logdata/tracks3d.csv")
+dat$utc<-strptime(paste(dat[,"utc_date"],dat[,"utc_time"]),format="%d/%m/%Y %H:%M:%S")
+
+pdf("status_txt_plot.pdf")
+p<-ggplot(dat)+geom_point(aes(utc,status_txt))
+print(p)
+p<-ggplot(dat)+geom_point(aes(ant_lat,ant_long,color=status_txt))
+print(p)
+dev.off()
+q()
