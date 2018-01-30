@@ -28,6 +28,8 @@
 ##num_rows=number 10
 ##num_cols=number 20
 
+##add_brutto_parcels=boolean
+
 #map_unit=number iface.mapCanvas().mapUnits()
 
 # The vector output
@@ -39,6 +41,12 @@ from qgis.core import *
 from qgis.PyQt.QtCore import QVariant
 from qgis.utils import iface
 import uuid
+
+#if add_brutto_parcels is True:
+#    # check for gaps
+#    if !((gap_w > 0) || (gap_l > 0)):
+#        # no gaps, brutto==netto
+#        add_brutto_parcels=False
 
 #extent = Grid_extent.split(',')
 #(xmin, xmax, ymin, ymax) = (float(extent[0]), float(extent[1]), float(extent[2]), float(extent[3]))
@@ -78,6 +86,7 @@ fieldsl.append(QgsField('plotid', QVariant.Int, '', 10, 0))
 fieldsl.append(QgsField('trackid', QVariant.Int, '', 10, 0))
 fieldsl.append(QgsField('rowid', QVariant.Int, '', 10, 0))
 fieldsl.append(QgsField('colid', QVariant.Int, '', 10, 0))
+fieldsl.append(QgsField('gtype', QVariant.Int, '', 10, 0))
 fieldsl.append(QgsField('uuid4', QVariant.String, '', 36, 0))
 for an in attnames_all:
     fieldsl.append(QgsField(an, QVariant.String, '', 100, 0))
@@ -101,7 +110,7 @@ for colid in range(num_cols):
         point2 = QgsPoint(x + hspacing, y)
         point3 = QgsPoint(x + hspacing, y + vspacing)
         point4 = QgsPoint(x, y + vspacing)
-        inAttr = [plotid, -1, rowid, colid, str(uuid.uuid4())]
+        inAttr = [plotid, -1, rowid, colid, 'netto', str(uuid.uuid4())]
         feat = QgsFeature()
         #feat.setGeometry(QgsGeometry().fromPolygon([[point1, point2, point3, point4]])) # Set geometry for the current id
         feat.setGeometry(QgsGeometry().fromPolyline([point1, point2, point3, point4, point1])) # Set geometry for the current id
@@ -109,6 +118,21 @@ for colid in range(num_cols):
         # prov.addFeatures([feat])
         # add to the line layer
         provl.addFeatures([feat])
+        if add_brutto_parcels:
+            xb=x-gap_w/2
+            yb=y-gap_l/2
+            point1 = QgsPoint(xb,yb)
+            point2 = QgsPoint(xb + hspacing + gap_w, yb)
+            point3 = QgsPoint(xb + hspacing + gap_w, yb + vspacing + gap_l)
+            point4 = QgsPoint(xb, yb + vspacing + gap_l)
+            inAttr = [plotid, -1, rowid, colid, 'brutto', str(uuid.uuid4())]
+            feat = QgsFeature()
+            #feat.setGeometry(QgsGeometry().fromPolygon([[point1, point2, point3, point4]])) # Set geometry for the current id
+            feat.setGeometry(QgsGeometry().fromPolyline([point1, point2, point3, point4, point1])) # Set geometry for the current id
+            feat.setAttributes(inAttr) # Set attributes for the current id
+            provl.addFeatures([feat])
+        
+            
     # generate the line features 
     lpoint1 = QgsPoint(x + hspacing/2, lineystart)
     lpoint2 = QgsPoint(x + hspacing/2, lineyend)
