@@ -15,7 +15,6 @@
 #Grid_extent=extent
 #upper_left=vector point extent.center()
 
-
 # parcel size defs 
 ##parcel_width=number 1.5
 ##parcel_length=number 6
@@ -29,6 +28,8 @@
 ##num_cols=number 20
 
 ##add_brutto_parcels=boolean
+##maintenance_offset=number 1
+##create_maintenance_tracks=boolean
 
 #map_unit=number iface.mapCanvas().mapUnits()
 
@@ -40,6 +41,7 @@
 from qgis.core import *
 from qgis.PyQt.QtCore import QVariant
 from qgis.utils import iface
+import math
 import uuid
 
 #if add_brutto_parcels is True:
@@ -101,6 +103,10 @@ lineystart = ymin - vspacing
 lineyend   = ymin + vspacing * num_rows + vspacing + gap_l * num_rows 
 linexstart = xmin - hspacing
 linexend   = xmin + hspacing * num_cols + hspacing + gap_w * num_cols
+x=0
+y=0
+maintenance_row_tbd=True
+lfeat = QgsFeature()
 for colid in range(num_cols): 
     x = xmin + (hspacing + gap_w)*colid
     for rowid in range(num_rows):
@@ -119,8 +125,8 @@ for colid in range(num_cols):
         # add to the line layer
         provl.addFeatures([feat])
         if add_brutto_parcels:
-            xb=x-gap_w/2
-            yb=y-gap_l/2
+            xb=x-gap_w/2.0
+            yb=y-gap_l/2.0
             point1 = QgsPoint(xb,yb)
             point2 = QgsPoint(xb + hspacing + gap_w, yb)
             point3 = QgsPoint(xb + hspacing + gap_w, yb + vspacing + gap_l)
@@ -131,19 +137,55 @@ for colid in range(num_cols):
             feat.setGeometry(QgsGeometry().fromPolyline([point1, point2, point3, point4, point1])) # Set geometry for the current id
             feat.setAttributes(inAttr) # Set attributes for the current id
             provl.addFeatures([feat])
-        
-            
+        if create_maintenance_tracks and maintenance_row_tbd:
+            if maintenance_offset > 0 and maintenance_offset < gap_l:
+                lpoint1 = QgsPoint(linexstart, y-maintenance_offset)
+                lpoint2 = QgsPoint(linexend, y-maintenance_offset)
+                lfeat.setGeometry(QgsGeometry().fromPolyline([lpoint1, lpoint2])) # Set line geometry for the current id
+                inAttr = [ rowid, -1, rowid, -1, 'maintenance-w', str(uuid.uuid4()) ]
+                lfeat.setAttributes(inAttr) # Set attributes for the current id
+                provl.addFeatures([lfeat])
+                if  (abs(maintenance_offset - gap_l/2.0) > 0.01) or (rowid==num_rows-1):
+                    lpoint1 = QgsPoint(linexstart, y+vspacing+maintenance_offset)
+                    lpoint2 = QgsPoint(linexend, y+vspacing+maintenance_offset)
+                    lfeat.setGeometry(QgsGeometry().fromPolyline([lpoint1, lpoint2])) # Set line geometry for the current id
+                    inAttr = [ rowid, -1, rowid, -1, 'maintenance-w', str(uuid.uuid4()) ]
+                    lfeat.setAttributes(inAttr) # Set attributes for the current id
+                    provl.addFeatures([lfeat])
+    # maintenance row direction ok, if done before, do not create again
+    maintenance_row_tbd=False
     # generate the line features 
     lpoint1 = QgsPoint(x + hspacing/2, lineystart)
     lpoint2 = QgsPoint(x + hspacing/2, lineyend)
-    lfeat = QgsFeature()
     lfeat.setGeometry(QgsGeometry().fromPolyline([lpoint1, lpoint2])) # Set line geometry for the current id
-    inAttr = [ -1, colid, -1, colid, str(uuid.uuid4()) ]
+    inAttr = [ -1, colid, -1, colid, 'track', str(uuid.uuid4()) ]
     lfeat.setAttributes(inAttr) # Set attributes for the current id
     provl.addFeatures([lfeat])
     # add to the common line vector layer
     # disabled for lines only
     #prov.addFeatures([lfeat])
+    
+    # TODO: check for a possible second one at the other side, ? by if  abs(maintenance_offset - gap_w/2) > 0.01
+    if create_maintenance_tracks:
+        # only create, if gap is bigger than distance
+        if maintenance_offset > 0 and maintenance_offset < gap_w:
+            lpoint1 = QgsPoint(x-maintenance_offset, lineystart)
+            lpoint2 = QgsPoint(x-maintenance_offset, lineyend)
+            lfeat.setGeometry(QgsGeometry().fromPolyline([lpoint1, lpoint2])) # Set line geometry for the current id
+            inAttr = [ -1, colid, -1, colid, 'maintenance-l', str(uuid.uuid4()) ]
+            lfeat.setAttributes(inAttr) # Set attributes for the current id
+            provl.addFeatures([lfeat])
+            if  (abs(maintenance_offset - gap_w/2.0) > 0.01) or (colid==num_cols-1):
+                lpoint1 = QgsPoint(x+hspacing+maintenance_offset, lineystart)
+                lpoint2 = QgsPoint(x+hspacing+maintenance_offset, lineyend)
+                lfeat.setGeometry(QgsGeometry().fromPolyline([lpoint1, lpoint2])) # Set line geometry for the current id
+                inAttr = [ -1, colid, -1, colid, 'maintenance-l', str(uuid.uuid4()) ]
+                lfeat.setAttributes(inAttr) # Set attributes for the current id
+                provl.addFeatures([lfeat])
+                
+
+
+
 
 # Update fields for the vector
 #vector_grid.updateFields()
