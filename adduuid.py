@@ -19,19 +19,36 @@ from qgis.gui import *
 from uuid import uuid4
 
 print(vector_layer)
-root = QgsProject.instance().layerTreeRoot()
-lyr = root.findLayer(apoly)
-print(lyr)
+QMessageBox.information(None, "Vector layer", vector_layer)
+lf=vector_layer.getFeatures()
 
-def run_script(iface):
-    lyrl=QgsMapLayerRegistry.instance().mapLayers()
+uuid_exists=False
+for c in f.fields().toList():
+    print(c.name())
+    if "uuid" == c.name():
+        uuid_exists=True
+        QMessageBox.information(None, "Attribute uuid exists", "leaving unchanged")
+    else:
+        QMessageBox.information(None, "Attribute uuid does not exist", "adding")
 
-iter = lyr.getFeatures()
-for feature in iter:
-    # fetch attributes
-    attrs = feature.attributes()
-    # attrs is a list. It contains all the attribute values of this feature
-    print attrs
+
+
+
+
+#root = QgsProject.instance().layerTreeRoot()
+#lyr = root.findLayer(vector_layer)
+#print(lyr)
+
+
+#def run_script(iface):
+    #lyrl=QgsMapLayerRegistry.instance().mapLayers()
+
+#iter = lyr.getFeatures()
+#for feature in iter:
+    ## fetch attributes
+    #attrs = feature.attributes()
+    ## attrs is a list. It contains all the attribute values of this feature
+    #print attrs
   
 #lyr=QgsVectorLayer('/media/martin/data700/martin/ltz-data/maxau-data/Hofgut_Maxau/gisdaten2018/grids/mx18_s16_soil.shp','addauuidhere','ogr') 
 #lf=lyr.getFeatures()
