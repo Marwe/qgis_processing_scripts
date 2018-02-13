@@ -19,7 +19,7 @@ from qgis.gui import *
 from uuid import uuid4
 
 print(vector_layer)
-QMessageBox.information(None, "Vector layer", vector_layer)
+#QMessageBox.information(None, "Vector layer", vector_layer)
 lf=vector_layer.getFeatures()
 
 uuid_exists=False
