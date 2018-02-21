@@ -19,8 +19,9 @@ from qgis.gui import *
 from uuid import uuid4
 
 print(vector_layer)
+print(type(vector_layer))
 #QMessageBox.information(None, "Vector layer", vector_layer)
-lf=vector_layer.getFeatures()
+lyrs=self.iface.legendInterface().layers()
 
 uuid_exists=False
 for c in f.fields().toList():
