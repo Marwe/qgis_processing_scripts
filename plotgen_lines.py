@@ -88,7 +88,7 @@ fieldsl.append(QgsField('plotid', QVariant.Int, '', 10, 0))
 fieldsl.append(QgsField('trackid', QVariant.Int, '', 10, 0))
 fieldsl.append(QgsField('rowid', QVariant.Int, '', 10, 0))
 fieldsl.append(QgsField('colid', QVariant.Int, '', 10, 0))
-fieldsl.append(QgsField('gtype', QVariant.Int, '', 10, 0))
+fieldsl.append(QgsField('gtype', QVariant.String, '', 15, 0))
 fieldsl.append(QgsField('uuid4', QVariant.String, '', 36, 0))
 for an in attnames_all:
     fieldsl.append(QgsField(an, QVariant.String, '', 100, 0))
