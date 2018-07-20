@@ -16,12 +16,12 @@
 #upper_left=vector point extent.center()
 
 # parcel size defs 
-##parcel_width=number 1.5
-##parcel_length=number 6
+##parcel_width=number 12
+##parcel_length=number 12
 
 # gaps
 ##gap_w=number 0
-##gap_l=number 2
+##gap_l=number 4
 
 # number of rows, cols
 ##num_rows=number 10
